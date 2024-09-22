@@ -146,6 +146,18 @@ function initializeCompetition() {
   }));
 }
 
+// Function to check if an athlete has missed all attempts in a lift
+function hasMissedAllAttempts(athlete, lift) {
+  return (
+    athlete[`${lift}1_result`] === "Fail" &&
+    athlete[`${lift}2_result`] === "Fail" &&
+    athlete[`${lift}3_result`] === "Fail" &&
+    athlete[`${lift}1`] !== null &&
+    athlete[`${lift}2`] !== null &&
+    athlete[`${lift}3`] !== null
+  );
+}
+
 // Function to display the competition board
 function displayCompetitionBoard(lift) {
   let boardDiv = document.getElementById("competition-board");
@@ -206,15 +218,33 @@ function displayCompetitionBoard(lift) {
 
     // Best lift cell
     let bestCell = document.createElement("td");
-    bestCell.textContent = athlete[`${lift}_best`] !== null ? athlete[`${lift}_best`] : "";
+    let allAttemptsMade = athlete[`${lift}1`] !== null && athlete[`${lift}2`] !== null && athlete[`${lift}3`] !== null;
+    if (allAttemptsMade && athlete[`${lift}_best`] === null && hasMissedAllAttempts(athlete, lift)) {
+      bestCell.textContent = "DNF";
+      bestCell.classList.add("dnf");
+    } else {
+      bestCell.textContent = athlete[`${lift}_best`] !== null ? athlete[`${lift}_best`] : "";
+    }
     row.appendChild(bestCell);
 
     // If lift is "cj", add "Total" cell
     if (lift === "cj") {
       let totalCell = document.createElement("td");
-      let snatchBest = athlete["snatch_best"] || 0;
-      let cjBest = athlete["cj_best"] || 0;
-      totalCell.textContent = snatchBest + cjBest > 0 ? snatchBest + cjBest : "";
+      let snatchBest = athlete["snatch_best"];
+      let cjBest = athlete["cj_best"];
+      let allSnatchAttemptsMade = hasMissedAllAttempts(athlete, "snatch") || athlete["snatch_best"] !== null;
+      let allCjAttemptsMade = hasMissedAllAttempts(athlete, "cj") || athlete["cj_best"] !== null;
+
+      if (allSnatchAttemptsMade && allCjAttemptsMade) {
+        if (snatchBest === null || cjBest === null) {
+          totalCell.textContent = "DNF";
+          totalCell.classList.add("dnf");
+        } else {
+          totalCell.textContent = snatchBest + cjBest;
+        }
+      } else {
+        totalCell.textContent = "";
+      }
       row.appendChild(totalCell);
     }
 
@@ -350,8 +380,16 @@ function displayRankings(lift) {
   let rankingsContainer = document.createElement("div");
 
   if (lift === "snatch") {
-    let ranking = competitionBoard.filter(a => a.snatch_best !== null);
-    ranking.sort((a, b) => b.snatch_best - a.snatch_best || a.weight - b.weight);
+    let ranking = competitionBoard.slice();
+
+    ranking.sort((a, b) => {
+      // Handle DNF cases
+      if (hasMissedAllAttempts(a, "snatch")) return 1;
+      if (hasMissedAllAttempts(b, "snatch")) return -1;
+
+      // Both have snatch_best
+      return b.snatch_best - a.snatch_best || a.weight - b.weight;
+    });
 
     let table = document.createElement("table");
     let headerRow = document.createElement("tr");
@@ -365,7 +403,7 @@ function displayRankings(lift) {
     ranking.forEach((athlete, index) => {
       let row = document.createElement("tr");
       let rankCell = document.createElement("td");
-      rankCell.textContent = index + 1;
+      rankCell.textContent = hasMissedAllAttempts(athlete, "snatch") ? "" : index + 1;
       row.appendChild(rankCell);
 
       let nameCell = document.createElement("td");
@@ -373,7 +411,12 @@ function displayRankings(lift) {
       row.appendChild(nameCell);
 
       let bestCell = document.createElement("td");
-      bestCell.textContent = athlete.snatch_best;
+      if (hasMissedAllAttempts(athlete, "snatch")) {
+        bestCell.textContent = "DNF";
+        bestCell.classList.add("dnf");
+      } else {
+        bestCell.textContent = athlete.snatch_best !== null ? athlete.snatch_best : "";
+      }
       row.appendChild(bestCell);
 
       table.appendChild(row);
@@ -384,11 +427,27 @@ function displayRankings(lift) {
 
   } else if (lift === "total") {
     competitionBoard.forEach(athlete => {
-      athlete.total = (athlete.snatch_best || 0) + (athlete.cj_best || 0);
+      if (
+        (hasMissedAllAttempts(athlete, "snatch") || athlete.snatch_best === null) ||
+        (hasMissedAllAttempts(athlete, "cj") || athlete.cj_best === null)
+      ) {
+        athlete.total = "DNF";
+      } else {
+        athlete.total = athlete.snatch_best + athlete.cj_best;
+      }
     });
 
-    let ranking = competitionBoard.filter(a => a.total > 0);
-    ranking.sort((a, b) => b.total - a.total || a.weight - b.weight);
+    let ranking = competitionBoard.slice();
+
+    ranking.sort((a, b) => {
+      // Handle DNF cases
+      if (a.total === "DNF" && b.total === "DNF") return 0;
+      if (a.total === "DNF") return 1;
+      if (b.total === "DNF") return -1;
+
+      // Both totals are numbers
+      return b.total - a.total || a.weight - b.weight;
+    });
 
     let table = document.createElement("table");
     let headerRow = document.createElement("tr");
@@ -402,7 +461,7 @@ function displayRankings(lift) {
     ranking.forEach((athlete, index) => {
       let row = document.createElement("tr");
       let rankCell = document.createElement("td");
-      rankCell.textContent = index + 1;
+      rankCell.textContent = athlete.total === "DNF" ? "" : index + 1;
       row.appendChild(rankCell);
 
       let nameCell = document.createElement("td");
@@ -410,15 +469,30 @@ function displayRankings(lift) {
       row.appendChild(nameCell);
 
       let snatchCell = document.createElement("td");
-      snatchCell.textContent = athlete.snatch_best;
+      if (hasMissedAllAttempts(athlete, "snatch")) {
+        snatchCell.textContent = "DNF";
+        snatchCell.classList.add("dnf");
+      } else {
+        snatchCell.textContent = athlete.snatch_best !== null ? athlete.snatch_best : "";
+      }
       row.appendChild(snatchCell);
 
       let cjCell = document.createElement("td");
-      cjCell.textContent = athlete.cj_best;
+      if (hasMissedAllAttempts(athlete, "cj")) {
+        cjCell.textContent = "DNF";
+        cjCell.classList.add("dnf");
+      } else {
+        cjCell.textContent = athlete.cj_best !== null ? athlete.cj_best : "";
+      }
       row.appendChild(cjCell);
 
       let totalCell = document.createElement("td");
-      totalCell.textContent = athlete.total;
+      if (athlete.total === "DNF") {
+        totalCell.textContent = "DNF";
+        totalCell.classList.add("dnf");
+      } else {
+        totalCell.textContent = athlete.total;
+      }
       row.appendChild(totalCell);
 
       table.appendChild(row);
