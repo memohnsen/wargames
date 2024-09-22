@@ -104,10 +104,19 @@ function getPlayerInput(message) {
   });
 }
 
-// Function to simulate an attempt
-function simulateAttempt(weight) {
-  // 60% chance of success
-  return Math.random() < 0.6;
+// Function to simulate an attempt with variable success rates
+function simulateAttempt(lift, attempt_num) {
+  let probability;
+  if (attempt_num === 1) {
+    probability = 0.75; // 75% for first attempt
+  } else if (attempt_num === 2) {
+    probability = 0.6;  // 60% for second attempt
+  } else if (attempt_num === 3) {
+    probability = 0.5;  // 50% for third attempt
+  } else {
+    probability = 0.6;  // Default to 60% if undefined
+  }
+  return Math.random() < probability;
 }
 
 // Initialize competition board
@@ -299,7 +308,7 @@ async function processAttempts(lift) {
           }
           attempt.weight = weight;
 
-          let result = simulateAttempt(weight);
+          let result = simulateAttempt(lift, attempt_num);
           athlete[`${lift}${attempt_num}`] = weight;
           athlete[`${lift}${attempt_num}_result`] = result ? "Success" : "Fail";
 
@@ -314,7 +323,7 @@ async function processAttempts(lift) {
           outputDiv.innerHTML += `<br>${athlete.name} (${lift} attempt ${attempt_num} at ${weight} kg): ${result ? "Success" : "Fail"}<br>`;
 
         } else {
-          let result = simulateAttempt(weight);
+          let result = simulateAttempt(lift, attempt_num);
           athlete[`${lift}${attempt_num}`] = weight;
           athlete[`${lift}${attempt_num}_result`] = result ? "Success" : "Fail";
 
