@@ -160,6 +160,11 @@ function displayCompetitionBoard(lift) {
   }
   headers.push(`${lift}_best`);
 
+  // If lift is "cj", add "Total" column
+  if (lift === "cj") {
+    headers.push("Total");
+  }
+
   headers.forEach(headerText => {
     let th = document.createElement("th");
     th.textContent = headerText.replace("_", " ").toUpperCase();
@@ -203,6 +208,15 @@ function displayCompetitionBoard(lift) {
     let bestCell = document.createElement("td");
     bestCell.textContent = athlete[`${lift}_best`] !== null ? athlete[`${lift}_best`] : "";
     row.appendChild(bestCell);
+
+    // If lift is "cj", add "Total" cell
+    if (lift === "cj") {
+      let totalCell = document.createElement("td");
+      let snatchBest = athlete["snatch_best"] || 0;
+      let cjBest = athlete["cj_best"] || 0;
+      totalCell.textContent = snatchBest + cjBest > 0 ? snatchBest + cjBest : "";
+      row.appendChild(totalCell);
+    }
 
     table.appendChild(row);
   });
