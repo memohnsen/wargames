@@ -1,30 +1,9 @@
-// List of athletes
-let athletes = [
-  { name: "Spencer", weight: 96.0, snatch: 120, cj: 150 },
-  { name: "Adam", weight: 96.0, snatch: 115, cj: 145 },
-  { name: "Angela", weight: 96.0, snatch: 118, cj: 148 },
-  { name: "David", weight: 96.0, snatch: 122, cj: 152 },
-  { name: "Nate", weight: 96.0, snatch: 110, cj: 140 },
-  { name: "Jessie", weight: 96.0, snatch: 110, cj: 141 },
-  { name: "Grace", weight: 96.0, snatch: 113, cj: 149 },
-  { name: "Jordan", weight: 96.0, snatch: 119, cj: 138 },
-  { name: "Morghan", weight: 96.0, snatch: 122, cj: 153 },
-  { name: "Maddisen", weight: 96.0, snatch: 114, cj: 144 }
-];
-
-// Function to add coach's athlete
-function addCoachAthlete(name, weight, snatch, cj) {
-  athletes.push({ name: name, weight: weight, snatch: snatch, cj: cj });
-}
-
-// Add the coach's athlete
-addCoachAthlete("Player", 96.0, 112, 140);
-
-// Competition data
-let competitionBoard;
-let currentLift;
-let outputDiv = document.getElementById("output");
-let rankingsDiv = document.getElementById("rankings");
+// References to HTML elements
+const outputDiv = document.getElementById("output");
+const rankingsDiv = document.getElementById("rankings");
+const playerNameInput = document.getElementById("player-name");
+const setPlayerNameButton = document.getElementById("set-player-name");
+const startCompetitionButton = document.getElementById("start-competition");
 
 // References to weight input elements
 const weightInputSection = document.getElementById("weight-input-section");
@@ -35,15 +14,51 @@ const submitWeightButton = document.getElementById("submit-weight");
 // Variable to hold the resolve function of the player input promise
 let playerInputResolve;
 
-// Event listener for submit button
+// Player's athlete object
+let playerAthlete;
+
+// Event listener for the Set Name button
+setPlayerNameButton.addEventListener("click", setPlayerName);
+
+// Event listener for the Start Competition button
+startCompetitionButton.addEventListener("click", () => {
+  runCompetition();
+});
+
+// Event listener for submit weight button
 submitWeightButton.addEventListener("click", submitPlayerWeight);
 
-// Add event listener for Enter key press in the input field
+// Add event listener for Enter key press in the weight input field
 playerWeightInput.addEventListener("keydown", function(event) {
   if (event.key === "Enter") {
     submitPlayerWeight();
   }
 });
+
+// Add event listener for Enter key press in the name input field
+playerNameInput.addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    setPlayerName();
+  }
+});
+
+// Function to set the player's name
+function setPlayerName() {
+  const name = playerNameInput.value.trim();
+  if (name !== "") {
+    // Create the player's athlete object
+    playerAthlete = { name: name, weight: 96.0, snatch: 112, cj: 140 };
+    // Enable the Start Competition button
+    startCompetitionButton.disabled = false;
+    // Disable the name input section
+    playerNameInput.disabled = true;
+    setPlayerNameButton.disabled = true;
+    // Optionally, hide the name input section
+    // document.getElementById("player-name-section").style.display = "none";
+  } else {
+    alert("Please enter a valid name.");
+  }
+}
 
 // Function to handle player weight submission
 function submitPlayerWeight() {
@@ -56,6 +71,17 @@ function submitPlayerWeight() {
   }
 }
 
+// Function to get player input
+function getPlayerInput(message) {
+  return new Promise((resolve) => {
+    weightInputTitle.textContent = message;
+    playerWeightInput.value = ""; // Clear previous input
+    weightInputSection.style.display = "block";
+    playerWeightInput.focus(); // Focus on the input field
+    playerInputResolve = resolve;
+  });
+}
+
 // Function to simulate an attempt
 function simulateAttempt(weight) {
   // 60% chance of success
@@ -63,7 +89,25 @@ function simulateAttempt(weight) {
 }
 
 // Initialize competition board
+let competitionBoard;
 function initializeCompetition() {
+  // List of athletes (excluding the player's athlete for now)
+  let athletes = [
+    { name: "Spencer", weight: 96.0, snatch: 120, cj: 150 },
+    { name: "Adam", weight: 96.0, snatch: 115, cj: 145 },
+    { name: "Angela", weight: 96.0, snatch: 118, cj: 148 },
+    { name: "David", weight: 96.0, snatch: 122, cj: 152 },
+    { name: "Nate", weight: 96.0, snatch: 110, cj: 140 },
+    { name: "Jessie", weight: 96.0, snatch: 110, cj: 141 },
+    { name: "Grace", weight: 96.0, snatch: 113, cj: 149 },
+    { name: "Jordan", weight: 96.0, snatch: 119, cj: 138 },
+    { name: "Morghan", weight: 96.0, snatch: 122, cj: 153 },
+    { name: "Maddisen", weight: 96.0, snatch: 114, cj: 144 }
+  ];
+
+  // Add the player's athlete to the list
+  athletes.push(playerAthlete);
+
   competitionBoard = athletes.map(athlete => ({
     ...athlete,
     snatch1: athlete.snatch,
@@ -87,7 +131,7 @@ function displayCompetitionBoard(lift) {
 
   let table = document.createElement("table");
   let headerRow = document.createElement("tr");
-  let headers = ["Name", "Weight Class"];
+  let headers = ["Name", "Weight"];
 
   for (let i = 1; i <= 3; i++) {
     headers.push(`${lift}${i}`);
@@ -144,17 +188,6 @@ function displayCompetitionBoard(lift) {
   boardDiv.appendChild(table);
 }
 
-// Function to get player input
-function getPlayerInput(message) {
-  return new Promise((resolve) => {
-    weightInputTitle.textContent = message;
-    playerWeightInput.value = ""; // Clear previous input
-    weightInputSection.style.display = "block";
-    playerWeightInput.focus(); // Focus on the input field
-    playerInputResolve = resolve;
-  });
-}
-
 // Function to process attempts for a lift
 async function processAttempts(lift) {
   competitionBoard.forEach((athlete, index) => {
@@ -183,7 +216,7 @@ async function processAttempts(lift) {
         let attempt_num = attempt.attempt_num;
         let weight = attempt.weight;
 
-        if (athlete.name === "Player") {
+        if (athlete.name === playerAthlete.name) {
           if (attemptResults.length > 0) {
             outputDiv.innerHTML = attemptResults.join('<br>');
             attemptResults = [];
@@ -191,9 +224,9 @@ async function processAttempts(lift) {
             outputDiv.innerHTML = "";
           }
 
-          weight = await getPlayerInput(`Player's turn for ${lift} attempt ${attempt_num}:`);
+          weight = await getPlayerInput(`${playerAthlete.name}'s turn for ${lift} attempt ${attempt_num}:`);
           if (weight === null) {
-            outputDiv.innerHTML += `Player skipped ${lift} attempt ${attempt_num}.<br>`;
+            outputDiv.innerHTML += `${playerAthlete.name} skipped ${lift} attempt ${attempt_num}.<br>`;
             attempts.splice(i, 1);
             i--;
             continue;
@@ -277,6 +310,7 @@ async function processAttempts(lift) {
 
 // Function to display rankings
 function displayRankings(lift) {
+  // Create a container for the rankings
   let rankingsContainer = document.createElement("div");
 
   if (lift === "snatch") {
@@ -306,7 +340,6 @@ function displayRankings(lift) {
       bestCell.textContent = athlete.snatch_best;
       row.appendChild(bestCell);
 
-      row.appendChild(bestCell);
       table.appendChild(row);
     });
 
@@ -359,7 +392,22 @@ function displayRankings(lift) {
     rankingsContainer.appendChild(table);
   }
 
+  // Append rankings to the rankingsDiv
   rankingsDiv.appendChild(rankingsContainer);
+}
+
+// Function to wait for the "Next" button click
+function waitForNextButton() {
+  return new Promise((resolve) => {
+    const nextButton = document.getElementById("next-button");
+    nextButton.style.display = "block"; // Show the button
+
+    nextButton.addEventListener("click", function handleClick() {
+      nextButton.style.display = "none"; // Hide the button
+      nextButton.removeEventListener("click", handleClick); // Remove the listener
+      resolve();
+    });
+  });
 }
 
 // Function to run the competition
@@ -375,18 +423,25 @@ async function runCompetition() {
 
   await processAttempts("snatch");
 
+  // Display snatch rankings
   displayRankings("snatch");
 
+  // Display competition board and show "Next" button
+  displayCompetitionBoard("snatch");
+
+  // Wait for user to click "Next" before proceeding
+  await waitForNextButton();
+
+  // Proceed to clean and jerks
   competitionBoard.sort((a, b) => a.cj1 - b.cj1);
 
   outputDiv.innerHTML += "<br>Clean & Jerk Attempts:<br>";
 
   await processAttempts("cj");
 
+  // **Clear previous rankings (snatch rankings)**
+  rankingsDiv.innerHTML = "";
+
+  // Display total rankings
   displayRankings("total");
 }
-
-// Event listener for the start competition button
-document.getElementById("start-competition").addEventListener("click", () => {
-  runCompetition();
-});
