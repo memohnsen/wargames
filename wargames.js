@@ -104,24 +104,52 @@ function displayCompetitionBoard(lift) {
 
   competitionBoard.forEach(athlete => {
     let row = document.createElement("tr");
-    let data = [
-      athlete.name,
-      athlete.weight,
-      "|",
-      athlete[`${lift}1`] !== null ? athlete[`${lift}1`] : "",
-      athlete[`${lift}1_result`] || "",
-      athlete[`${lift}2`] !== null ? athlete[`${lift}2`] : "",
-      athlete[`${lift}2_result`] || "",
-      athlete[`${lift}3`] !== null ? athlete[`${lift}3`] : "",
-      athlete[`${lift}3_result`] || "",
-      athlete[`${lift}_best`] !== null ? athlete[`${lift}_best`] : ""
-    ];
 
-    data.forEach(cellData => {
-      let td = document.createElement("td");
-      td.textContent = cellData;
-      row.appendChild(td);
-    });
+    // Name cell
+    let nameCell = document.createElement("td");
+    nameCell.textContent = athlete.name;
+    row.appendChild(nameCell);
+
+    // Weight cell
+    let weightCell = document.createElement("td");
+    weightCell.textContent = athlete.weight;
+    row.appendChild(weightCell);
+
+    // Separator cell
+    let separatorCell = document.createElement("td");
+    separatorCell.textContent = "|";
+    row.appendChild(separatorCell);
+
+    // Attempt cells
+    for (let i = 1; i <= 3; i++) {
+      let attemptWeight = athlete[`${lift}${i}`];
+      let attemptResult = athlete[`${lift}${i}_result`];
+
+      // Weight cell
+      let weightCell = document.createElement("td");
+      weightCell.textContent = attemptWeight !== null ? attemptWeight : "";
+
+      // Result cell
+      let resultCell = document.createElement("td");
+      resultCell.textContent = attemptResult || "";
+
+      // Apply classes
+      if (attemptResult === "Success") {
+        weightCell.classList.add("success");
+        resultCell.classList.add("success");
+      } else if (attemptResult === "Fail") {
+        weightCell.classList.add("failure");
+        resultCell.classList.add("failure");
+      }
+
+      row.appendChild(weightCell);
+      row.appendChild(resultCell);
+    }
+
+    // Best lift cell
+    let bestCell = document.createElement("td");
+    bestCell.textContent = athlete[`${lift}_best`] !== null ? athlete[`${lift}_best`] : "";
+    row.appendChild(bestCell);
 
     table.appendChild(row);
   });
