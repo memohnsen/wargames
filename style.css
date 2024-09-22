@@ -65,3 +65,13 @@ h1 {
   width: 300px;
   text-align: center;
 }
+
+.success {
+  background-color: #d4edda !important; /* Light green background */
+  color: #155724 !important; /* Dark green text */
+}
+
+.failure {
+  background-color: #f8d7da !important; /* Light red background */
+  color: #721c24 !important; /* Dark red text */
+}
