@@ -5,6 +5,8 @@ body {
 
 #output {
   margin-top: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
 }
 
 #competition-board {
