@@ -4,6 +4,7 @@ const rankingsDiv = document.getElementById("rankings");
 const playerNameInput = document.getElementById("player-name");
 const setPlayerNameButton = document.getElementById("set-player-name");
 const startCompetitionButton = document.getElementById("start-competition");
+const resetCompetitionButton = document.getElementById("reset-competition");
 
 // References to weight input elements
 const weightInputSection = document.getElementById("weight-input-section");
@@ -24,6 +25,9 @@ setPlayerNameButton.addEventListener("click", setPlayerName);
 startCompetitionButton.addEventListener("click", () => {
   runCompetition();
 });
+
+// Event listener for the Reset Competition button
+resetCompetitionButton.addEventListener("click", resetCompetition);
 
 // Event listener for submit weight button
 submitWeightButton.addEventListener("click", submitPlayerWeight);
@@ -58,6 +62,24 @@ function setPlayerName() {
   } else {
     alert("Please enter a valid name.");
   }
+}
+
+// Function to reset the competition
+function resetCompetition() {
+  // Reset all variables and UI elements to their initial states
+  playerNameInput.value = "";
+  playerNameInput.disabled = false;
+  setPlayerNameButton.disabled = false;
+  startCompetitionButton.disabled = true;
+
+  outputDiv.innerHTML = "";
+  rankingsDiv.innerHTML = "";
+  document.getElementById("competition-board").innerHTML = "";
+  weightInputSection.style.display = "none";
+  document.getElementById("next-button").style.display = "none";
+
+  // Reset player athlete
+  playerAthlete = null;
 }
 
 // Function to handle player weight submission
@@ -414,6 +436,7 @@ function waitForNextButton() {
 async function runCompetition() {
   outputDiv.innerHTML = "";
   rankingsDiv.innerHTML = ""; // Clear rankings
+  document.getElementById("competition-board").innerHTML = ""; // Clear competition board
 
   initializeCompetition();
 
@@ -439,7 +462,7 @@ async function runCompetition() {
 
   await processAttempts("cj");
 
-  // **Clear previous rankings (snatch rankings)**
+  // Clear previous rankings (snatch rankings)
   rankingsDiv.innerHTML = "";
 
   // Display total rankings
