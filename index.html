@@ -3,29 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <title>Weightlifting Competition Simulator</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
   <h1>Weightlifting Competition Simulator</h1>
-  <button id="start-competition">New Competition</button>
+  <button id="start-competition">Start Competition</button>
+
   <div id="competition-board"></div>
-  <div id="controls">
+
+  <!-- Inline Weight Input Section -->
+  <div id="weight-input-section" style="display: none;">
+    <h2 id="weight-input-title"></h2>
+    <label for="player-weight">Enter the weight for your attempt:</label>
+    <input type="number" id="player-weight" min="1" step="1">
+    <button id="submit-weight">Submit</button>
   </div>
 
-  <!-- Modal for Player Input -->
-  <div id="player-modal" class="modal">
-    <div class="modal-content">
-      <h2 id="modal-title"></h2>
-      <label for="player-weight">Enter the weight for your attempt:</label>
-      <input type="number" id="player-weight" min="1" step="1">
-      <button id="submit-weight">Submit</button>
-    </div>
-  </div>
+  <div id="output"></div>
+  <div id="rankings"></div>
 
- <div id="output"></div>
- <div id="rankings"></div>
-
-  <!-- Include the script at the end of the body -->
   <script src="wargames.js"></script>
 </body>
 </html>
