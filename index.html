@@ -8,9 +8,21 @@
 <body>
 
   <h1>Weightlifting Competition Simulator</h1>
-  <button id="start-competition">New Competition</button>
 
+  <!-- Player Name Input Section -->
+  <div id="player-name-section">
+    <label for="player-name">Enter your athlete's name:</label>
+    <input type="text" id="player-name" placeholder="Your Name">
+    <button id="set-player-name">Set Name</button>
+  </div>
+
+  <button id="start-competition" disabled>Start Competition</button>
+
+  
   <div id="competition-board"></div>
+
+  <!-- Next Button -->
+  <button id="next-button" style="display: none;">Next</button>
 
   <!-- Inline Weight Input Section -->
   <div id="weight-input-section" style="display: none;">
@@ -19,7 +31,7 @@
     <input type="number" id="player-weight" min="1" step="1">
     <button id="submit-weight">Submit</button>
   </div>
-
+  
   <div id="output"></div>
   <div id="rankings"></div>
 
