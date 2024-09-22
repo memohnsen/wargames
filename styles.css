@@ -1,0 +1,57 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+#output {
+  margin-top: 20px;
+}
+
+#competition-board {
+  margin-top: 20px;
+}
+
+#competition-board table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#competition-board th, #competition-board td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: center;
+}
+
+.success {
+  background-color: #d4edda !important; /* Light green background */
+  color: #155724 !important;           /* Dark green text */
+}
+
+.failure {
+  background-color: #f8d7da !important; /* Light red background */
+  color: #721c24 !important;            /* Dark red text */
+}
+
+#rankings {
+  margin-top: 20px;
+}
+
+#rankings h2 {
+  margin-top: 20px;
+}
+
+/* Style for the weight input section */
+#weight-input-section {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+#weight-input-section h2 {
+  margin-top: 0;
+}
+
+#weight-input-section input {
+  width: 100px;
+  margin-right: 10px;
+}
