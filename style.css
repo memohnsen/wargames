@@ -7,6 +7,10 @@ body {
   margin-bottom: 20px;
 }
 
+#rankings {
+  margin-top: 20px;
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
