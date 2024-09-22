@@ -24,11 +24,11 @@ addCoachAthlete("Player", 96.0, 112, 140);
 let competitionBoard;
 let currentLift;
 let outputDiv = document.getElementById("output");
-let rankingsDiv = document.getElementById("rankings"); // New rankings div
+let rankingsDiv = document.getElementById("rankings");
 
-// References to modal elements
-const playerModal = document.getElementById("player-modal");
-const modalTitle = document.getElementById("modal-title");
+// References to weight input elements
+const weightInputSection = document.getElementById("weight-input-section");
+const weightInputTitle = document.getElementById("weight-input-title");
 const playerWeightInput = document.getElementById("player-weight");
 const submitWeightButton = document.getElementById("submit-weight");
 
@@ -49,7 +49,7 @@ playerWeightInput.addEventListener("keydown", function(event) {
 function submitPlayerWeight() {
   const weight = parseInt(playerWeightInput.value);
   if (!isNaN(weight) && weight > 0) {
-    playerModal.style.display = "none";
+    weightInputSection.style.display = "none";
     playerInputResolve(weight);
   } else {
     alert("Please enter a valid weight.");
@@ -87,11 +87,10 @@ function displayCompetitionBoard(lift) {
 
   let table = document.createElement("table");
   let headerRow = document.createElement("tr");
-  let headers = ["Name", "Weight", "|"];
+  let headers = ["Name", "Weight"];
 
   for (let i = 1; i <= 3; i++) {
     headers.push(`${lift}${i}`);
-    headers.push(`${lift}${i} Result`);
   }
   headers.push(`${lift}_best`);
 
@@ -115,11 +114,6 @@ function displayCompetitionBoard(lift) {
     weightCell.textContent = athlete.weight;
     row.appendChild(weightCell);
 
-    // Separator cell
-    let separatorCell = document.createElement("td");
-    separatorCell.textContent = "|";
-    row.appendChild(separatorCell);
-
     // Attempt cells
     for (let i = 1; i <= 3; i++) {
       let attemptWeight = athlete[`${lift}${i}`];
@@ -129,21 +123,14 @@ function displayCompetitionBoard(lift) {
       let weightCell = document.createElement("td");
       weightCell.textContent = attemptWeight !== null ? attemptWeight : "";
 
-      // Result cell
-      let resultCell = document.createElement("td");
-      resultCell.textContent = attemptResult || "";
-
       // Apply classes
       if (attemptResult === "Success") {
         weightCell.classList.add("success");
-        resultCell.classList.add("success");
       } else if (attemptResult === "Fail") {
         weightCell.classList.add("failure");
-        resultCell.classList.add("failure");
       }
 
       row.appendChild(weightCell);
-      row.appendChild(resultCell);
     }
 
     // Best lift cell
@@ -157,12 +144,12 @@ function displayCompetitionBoard(lift) {
   boardDiv.appendChild(table);
 }
 
-// Function to get player input using the modal
+// Function to get player input
 function getPlayerInput(message) {
   return new Promise((resolve) => {
-    modalTitle.textContent = message;
+    weightInputTitle.textContent = message;
     playerWeightInput.value = ""; // Clear previous input
-    playerModal.style.display = "block";
+    weightInputSection.style.display = "block";
     playerWeightInput.focus(); // Focus on the input field
     playerInputResolve = resolve;
   });
@@ -170,7 +157,6 @@ function getPlayerInput(message) {
 
 // Function to process attempts for a lift
 async function processAttempts(lift) {
-  // Initialize attempts
   competitionBoard.forEach((athlete, index) => {
     athlete.attempts = [{
       name: athlete.name,
@@ -182,16 +168,10 @@ async function processAttempts(lift) {
     athlete.currentAttemptIndex = 0;
   });
 
-  // Flatten all attempts into one array
   let attempts = competitionBoard.flatMap(athlete => athlete.attempts);
-
-  // Sort attempts by weight and order
   attempts.sort((a, b) => a.initial_weight - b.initial_weight || a.order - b.order);
 
-  // Initialize an array to collect attempt results since the player's last attempt
   let attemptResults = [];
-
-  // Keep track of the current barbell weight
   let currentWeight = Math.min(...attempts.map(attempt => attempt.initial_weight));
 
   while (attempts.length > 0) {
@@ -204,7 +184,6 @@ async function processAttempts(lift) {
         let weight = attempt.weight;
 
         if (athlete.name === "Player") {
-          // Output the attemptResults collected since last player's attempt
           if (attemptResults.length > 0) {
             outputDiv.innerHTML = attemptResults.join('<br>');
             attemptResults = [];
@@ -212,19 +191,15 @@ async function processAttempts(lift) {
             outputDiv.innerHTML = "";
           }
 
-          // Now proceed with the player's attempt
           weight = await getPlayerInput(`Player's turn for ${lift} attempt ${attempt_num}:`);
           if (weight === null) {
-            // Handle cancellation if needed
             outputDiv.innerHTML += `Player skipped ${lift} attempt ${attempt_num}.<br>`;
-            // Remove the current attempt
             attempts.splice(i, 1);
             i--;
             continue;
           }
-          attempt.weight = weight; // Update attempt weight
+          attempt.weight = weight;
 
-          // Process the player's attempt
           let result = simulateAttempt(weight);
           athlete[`${lift}${attempt_num}`] = weight;
           athlete[`${lift}${attempt_num}_result`] = result ? "Success" : "Fail";
@@ -237,11 +212,9 @@ async function processAttempts(lift) {
             }
           }
 
-          // Output the player's attempt result
           outputDiv.innerHTML += `<br>${athlete.name} (${lift} attempt ${attempt_num} at ${weight} kg): ${result ? "Success" : "Fail"}<br>`;
 
         } else {
-          // Process other athletes' attempts
           let result = simulateAttempt(weight);
           athlete[`${lift}${attempt_num}`] = weight;
           athlete[`${lift}${attempt_num}_result`] = result ? "Success" : "Fail";
@@ -254,20 +227,16 @@ async function processAttempts(lift) {
             }
           }
 
-          // Collect the attempt result
           attemptResults.push(`${athlete.name} (${lift} attempt ${attempt_num} at ${weight} kg): ${result ? "Success" : "Fail"}`);
         }
 
-        // Decide the weight for the next attempt
         if (attempt_num < 3) {
           let next_attempt_num = attempt_num + 1;
           let next_weight;
 
           if (athlete[`${lift}${attempt_num}_result`] === "Success") {
-            // Increase weight for the next attempt
-            next_weight = weight + Math.floor(Math.random() * 3) + 3; // Random between 3 and 5
+            next_weight = weight + Math.floor(Math.random() * 3) + 3;
           } else {
-            // Retry the same weight or slightly increase
             next_weight = Math.random() < 0.1 ? weight + 1 : weight;
           }
 
@@ -281,20 +250,15 @@ async function processAttempts(lift) {
           });
         }
 
-        // Remove the current attempt
         attempts.splice(i, 1);
         i--;
 
-        // Add new attempt if any
         if (athlete.attempts.length > athlete.currentAttemptIndex + 1) {
           athlete.currentAttemptIndex++;
           attempts.push(athlete.attempts[athlete.currentAttemptIndex]);
         }
 
-        // Re-sort attempts
         attempts.sort((a, b) => a.initial_weight - b.initial_weight || a.order - b.order);
-
-        // Display the current competition board
         displayCompetitionBoard(lift);
 
         attemptMade = true;
@@ -306,7 +270,6 @@ async function processAttempts(lift) {
     }
   }
 
-  // After all attempts are processed, output any remaining attempt results
   if (attemptResults.length > 0) {
     outputDiv.innerHTML = attemptResults.join('<br>');
   }
@@ -314,7 +277,6 @@ async function processAttempts(lift) {
 
 // Function to display rankings
 function displayRankings(lift) {
-  // Create a container for the rankings
   let rankingsContainer = document.createElement("div");
 
   if (lift === "snatch") {
@@ -344,6 +306,7 @@ function displayRankings(lift) {
       bestCell.textContent = athlete.snatch_best;
       row.appendChild(bestCell);
 
+      row.appendChild(bestCell);
       table.appendChild(row);
     });
 
@@ -396,7 +359,6 @@ function displayRankings(lift) {
     rankingsContainer.appendChild(table);
   }
 
-  // Append rankings to the rankingsDiv
   rankingsDiv.appendChild(rankingsContainer);
 }
 
@@ -407,24 +369,20 @@ async function runCompetition() {
 
   initializeCompetition();
 
-  // Sort competition board by snatch1 weights
   competitionBoard.sort((a, b) => a.snatch1 - b.snatch1);
 
   outputDiv.innerHTML += "Snatch Attempts:<br>";
 
   await processAttempts("snatch");
 
-  // Display snatch rankings
   displayRankings("snatch");
 
-  // Sort competition board by cj1 weights
   competitionBoard.sort((a, b) => a.cj1 - b.cj1);
 
   outputDiv.innerHTML += "<br>Clean & Jerk Attempts:<br>";
 
   await processAttempts("cj");
 
-  // Display total rankings
   displayRankings("total");
 }
 
