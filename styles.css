@@ -22,6 +22,8 @@ body {
   border: 1px solid #ccc;
   padding: 5px;
   text-align: center;
+  background-color: #ffffff;
+  color: #000000;
 }
 
 .success {
