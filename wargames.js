@@ -24,6 +24,7 @@ addCoachAthlete("Player", 96.0, 112, 140);
 let competitionBoard;
 let currentLift;
 let outputDiv = document.getElementById("output");
+let rankingsDiv = document.getElementById("rankings"); // New rankings div
 
 // References to modal elements
 const playerModal = document.getElementById("player-modal");
@@ -285,7 +286,8 @@ async function processAttempts(lift) {
 
 // Function to display rankings
 function displayRankings(lift) {
-  let rankingsDiv = document.createElement("div");
+  // Create a container for the rankings
+  let rankingsContainer = document.createElement("div");
 
   if (lift === "snatch") {
     let ranking = competitionBoard.filter(a => a.snatch_best !== null);
@@ -317,8 +319,8 @@ function displayRankings(lift) {
       table.appendChild(row);
     });
 
-    rankingsDiv.innerHTML = "<h2>Snatch Rankings:</h2>";
-    rankingsDiv.appendChild(table);
+    rankingsContainer.innerHTML = "<h2>Snatch Rankings:</h2>";
+    rankingsContainer.appendChild(table);
 
   } else if (lift === "total") {
     competitionBoard.forEach(athlete => {
@@ -362,17 +364,18 @@ function displayRankings(lift) {
       table.appendChild(row);
     });
 
-    rankingsDiv.innerHTML = "<h2>Total Rankings:</h2>";
-    rankingsDiv.appendChild(table);
+    rankingsContainer.innerHTML = "<h2>Total Rankings:</h2>";
+    rankingsContainer.appendChild(table);
   }
 
-  // Append rankings to output
-  outputDiv.appendChild(rankingsDiv);
+  // Append rankings to the rankingsDiv
+  rankingsDiv.appendChild(rankingsContainer);
 }
 
 // Function to run the competition
 async function runCompetition() {
   outputDiv.innerHTML = "";
+  rankingsDiv.innerHTML = ""; // Clear rankings
 
   initializeCompetition();
 
