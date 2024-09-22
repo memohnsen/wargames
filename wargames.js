@@ -87,7 +87,7 @@ function displayCompetitionBoard(lift) {
 
   let table = document.createElement("table");
   let headerRow = document.createElement("tr");
-  let headers = ["Name", "Weight"];
+  let headers = ["Name", "Weight Class"];
 
   for (let i = 1; i <= 3; i++) {
     headers.push(`${lift}${i}`);
