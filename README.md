@@ -1,6 +1,6 @@
 # War Games
 
-War Games is an Olympic Weightlifting competition simulator developed from the Staff Calls of Power & Grace Performance. 
+War Games is an Olympic Weightlifting competition simulator developed from the Staff Calls of Power & Grace Performance by Maddisen Mohnsen
 
 War Games was developed to give both beginner and advanced coaches the ability to practice counting attempts without the stress of a true competition environment. 
 
@@ -14,3 +14,5 @@ War Games was developed to give both beginner and advanced coaches the ability t
 	- Upon completion of the clean and jerk session, snatch rankings will be replaced with the final leaderboard. Total will be displayed during the clean and jerk session to be able to watch for potential medal placements
 
 If you have any questions or feedback please shoot me an email and let me know! maddisen@powerandgraceperformance.com
+
+Maddisen Mohnsen CSCS, USAW National Coach
