@@ -2,6 +2,8 @@
 const outputDiv = document.getElementById("output");
 const rankingsDiv = document.getElementById("rankings");
 const playerNameInput = document.getElementById("player-name");
+const snatchAttemptInput = document.getElementById("snatch-attempt");
+const cjAttemptInput = document.getElementById("cj-attempt");
 const setPlayerNameButton = document.getElementById("set-player-name");
 const startCompetitionButton = document.getElementById("start-competition");
 const resetCompetitionButton = document.getElementById("reset-competition");
@@ -18,7 +20,7 @@ let playerInputResolve;
 // Player's athlete object
 let playerAthlete;
 
-// Event listener for the Set Name button
+// Event listener for the Set Name and Attempts button
 setPlayerNameButton.addEventListener("click", setPlayerName);
 
 // Event listener for the Start Competition button
@@ -46,29 +48,51 @@ playerNameInput.addEventListener("keydown", function(event) {
   }
 });
 
-// Function to set the player's name
+// Function to set the player's name and first attempts
 function setPlayerName() {
   const name = playerNameInput.value.trim();
-  if (name !== "") {
-    // Create the player's athlete object
-    playerAthlete = { name: name, weight: 96.0, snatch: 112, cj: 140 };
-    // Enable the Start Competition button
-    startCompetitionButton.disabled = false;
-    // Disable the name input section
-    playerNameInput.disabled = true;
-    setPlayerNameButton.disabled = true;
-    // Optionally, hide the name input section
-    // document.getElementById("player-name-section").style.display = "none";
-  } else {
+  const snatchAttempt = parseInt(snatchAttemptInput.value);
+  const cjAttempt = parseInt(cjAttemptInput.value);
+
+  if (name === "") {
     alert("Please enter a valid name.");
+    return;
   }
+
+  // Validate snatch attempt
+  if (isNaN(snatchAttempt) || snatchAttempt < 110 || snatchAttempt > 130) {
+    alert("Please enter a valid Snatch 1st Attempt between 110 kg and 130 kg.");
+    return;
+  }
+
+  // Validate clean & jerk attempt
+  if (isNaN(cjAttempt) || cjAttempt < 140 || cjAttempt > 155) {
+    alert("Please enter a valid Clean & Jerk 1st Attempt between 140 kg and 155 kg.");
+    return;
+  }
+
+  // Create the player's athlete object with the specified first attempts
+  playerAthlete = { name: name, weight: 96.0, snatch: snatchAttempt, cj: cjAttempt };
+
+  // Enable the Start Competition button
+  startCompetitionButton.disabled = false;
+
+  // Disable the name and attempt input sections
+  playerNameInput.disabled = true;
+  snatchAttemptInput.disabled = true;
+  cjAttemptInput.disabled = true;
+  setPlayerNameButton.disabled = true;
 }
 
 // Function to reset the competition
 function resetCompetition() {
   // Reset all variables and UI elements to their initial states
   playerNameInput.value = "";
+  snatchAttemptInput.value = "";
+  cjAttemptInput.value = "";
   playerNameInput.disabled = false;
+  snatchAttemptInput.disabled = false;
+  cjAttemptInput.disabled = false;
   setPlayerNameButton.disabled = false;
   startCompetitionButton.disabled = true;
 
