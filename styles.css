@@ -53,10 +53,11 @@ body {
 
 #weight-input-section h2 {
   margin-top: 0;
+  width: 1000px;
 }
 
 #weight-input-section input {
-  width: 100px;
+  width: 10px;
   margin-right: 10px;
 }
 
