@@ -43,6 +43,7 @@ body {
 
 /* Highlight the player's row */
 .player-row {
+  background-color: #fff3cd !important; /* Light yellow background */
   font-weight: bold;
 }
 
