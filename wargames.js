@@ -175,7 +175,7 @@ function initializeCompetition() {
     { name: "Nate", weight: 96.0, snatch: 110, cj: 140 },
     { name: "Jessie", weight: 96.0, snatch: 110, cj: 141 },
     { name: "Grace", weight: 96.0, snatch: 113, cj: 149 },
-    { name: "Jordan", weight: 119.0, snatch: 119, cj: 138 },
+    { name: "Jordan", weight: 96.0, snatch: 119, cj: 138 },
     { name: "Morghan", weight: 96.0, snatch: 122, cj: 153 },
     { name: "Maddisen", weight: 96.0, snatch: 114, cj: 144 }
   ];
