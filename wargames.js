@@ -14,11 +14,19 @@ const weightInputTitle = document.getElementById("weight-input-title");
 const playerWeightInput = document.getElementById("player-weight");
 const submitWeightButton = document.getElementById("submit-weight");
 
+// References to navigation buttons
+const navigationButtons = document.getElementById("navigation-buttons");
+const nextButton = document.getElementById("next-button");
+const previousButton = document.getElementById("previous-button");
+
 // Variable to hold the resolve function of the player input promise
 let playerInputResolve;
 
 // Player's athlete object
 let playerAthlete;
+
+// Variable to keep track of the current state
+let currentState = 0; // 0: Snatch Results, 1: CJ Starting List, 2: CJ Attempts
 
 // Event listener for the Set Name and Attempts button
 setPlayerNameButton.addEventListener("click", setPlayerName);
@@ -34,6 +42,10 @@ resetCompetitionButton.addEventListener("click", resetCompetition);
 // Event listener for submit weight button
 submitWeightButton.addEventListener("click", submitPlayerWeight);
 
+// Event listeners for navigation buttons
+nextButton.addEventListener("click", handleNext);
+previousButton.addEventListener("click", handlePrevious);
+
 // Add event listener for Enter key press in the weight input field
 playerWeightInput.addEventListener("keydown", function(event) {
   if (event.key === "Enter") {
@@ -41,11 +53,13 @@ playerWeightInput.addEventListener("keydown", function(event) {
   }
 });
 
-// Add event listener for Enter key press in the name input field
-playerNameInput.addEventListener("keydown", function(event) {
-  if (event.key === "Enter") {
-    setPlayerName();
-  }
+// Add event listener for Enter key press in the name and attempt input fields
+[playerNameInput, snatchAttemptInput, cjAttemptInput].forEach(input => {
+  input.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      setPlayerName();
+    }
+  });
 });
 
 // Function to set the player's name and first attempts
@@ -100,7 +114,8 @@ function resetCompetition() {
   rankingsDiv.innerHTML = "";
   document.getElementById("competition-board").innerHTML = "";
   weightInputSection.style.display = "none";
-  document.getElementById("next-button").style.display = "none";
+  navigationButtons.style.display = "none";
+  currentState = 0;
 
   // Reset player athlete
   playerAthlete = null;
@@ -160,7 +175,7 @@ function initializeCompetition() {
     { name: "Nate", weight: 96.0, snatch: 110, cj: 140 },
     { name: "Jessie", weight: 96.0, snatch: 110, cj: 141 },
     { name: "Grace", weight: 96.0, snatch: 113, cj: 149 },
-    { name: "Jordan", weight: 96.0, snatch: 119, cj: 138 },
+    { name: "Jordan", weight: 119.0, snatch: 119, cj: 138 },
     { name: "Morghan", weight: 96.0, snatch: 122, cj: 153 },
     { name: "Maddisen", weight: 96.0, snatch: 114, cj: 144 }
   ];
@@ -333,15 +348,24 @@ async function processAttempts(lift) {
             outputDiv.innerHTML = "";
           }
 
-          // Determine last attempt weight
+          // Determine last attempt weight and result
           let lastAttemptWeight;
+          let lastAttemptResult;
           if (attempt_num === 1) {
             lastAttemptWeight = athlete[`${lift}1`];
+            lastAttemptResult = athlete[`${lift}1_result`];
           } else {
             lastAttemptWeight = athlete[`${lift}${attempt_num - 1}`];
+            lastAttemptResult = athlete[`${lift}${attempt_num - 1}_result`];
           }
 
-          let minWeight = lastAttemptWeight;
+          // Set minWeight based on last attempt result
+          let minWeight;
+          if (lastAttemptResult === "Success") {
+            minWeight = lastAttemptWeight + 1;
+          } else {
+            minWeight = lastAttemptWeight;
+          }
           let maxWeight = lastAttemptWeight + 10;
 
           weight = await getPlayerInput(`${playerAthlete.name}'s turn for ${lift} attempt ${attempt_num}:`, minWeight, maxWeight);
@@ -388,9 +412,17 @@ async function processAttempts(lift) {
           let next_weight;
 
           if (athlete[`${lift}${attempt_num}_result`] === "Success") {
-            next_weight = weight + Math.floor(Math.random() * 3) + 3;
+            // After a successful lift, minimum next weight is +1 kg
+            let minNextWeight = weight + 1;
+            let maxNextWeight = weight + 5; // Assuming a max increase of 5 kg
+            next_weight = minNextWeight + Math.floor(Math.random() * (maxNextWeight - minNextWeight + 1));
           } else {
-            next_weight = Math.random() < 0.1 ? weight + 1 : weight;
+            // After a missed lift, same weight with a 10% chance of increasing by 1 kg
+            if (Math.random() < 0.1) {
+              next_weight = weight + 1;
+            } else {
+              next_weight = weight;
+            }
           }
 
           athlete[`${lift}${next_attempt_num}`] = next_weight;
@@ -569,21 +601,63 @@ function displayRankings(lift) {
   }
 
   // Append rankings to the rankingsDiv
+  rankingsDiv.innerHTML = ""; // Clear previous rankings
   rankingsDiv.appendChild(rankingsContainer);
 }
 
-// Function to wait for the "Next" button click
-function waitForNextButton() {
-  return new Promise((resolve) => {
-    const nextButton = document.getElementById("next-button");
-    nextButton.style.display = "block"; // Show the button
+// Function to handle the "Next" button click
+function handleNext() {
+  if (currentState === 0) {
+    // From Snatch Results to CJ Starting List
+    currentState = 1;
+    showCJStartingList();
+  } else if (currentState === 1) {
+    // From CJ Starting List to CJ Attempts
+    currentState = 2;
+    runCJAttempts();
+  } else if (currentState === 2) {
+    // No further action
+    navigationButtons.style.display = "none";
+  }
+}
 
-    nextButton.addEventListener("click", function handleClick() {
-      nextButton.style.display = "none"; // Hide the button
-      nextButton.removeEventListener("click", handleClick); // Remove the listener
-      resolve();
-    });
-  });
+// Function to handle the "Previous" button click
+function handlePrevious() {
+  if (currentState === 1) {
+    // From CJ Starting List back to Snatch Results
+    currentState = 0;
+    showSnatchResults();
+  } else if (currentState === 2) {
+    // From CJ Attempts back to CJ Starting List
+    currentState = 1;
+    showCJStartingList();
+  }
+}
+
+// Function to show Snatch Results
+function showSnatchResults() {
+  outputDiv.innerHTML = "Snatch Attempts:<br>";
+  displayCompetitionBoard("snatch");
+  displayRankings("snatch");
+  navigationButtons.style.display = "block";
+}
+
+// Function to show Clean & Jerk Starting List
+function showCJStartingList() {
+  outputDiv.innerHTML = "<br>Clean & Jerk Starting List:<br>";
+  displayCompetitionBoard("cj");
+  rankingsDiv.innerHTML = "";
+  navigationButtons.style.display = "block";
+}
+
+// Function to run Clean & Jerk Attempts
+async function runCJAttempts() {
+  outputDiv.innerHTML = "<br>Clean & Jerk Attempts:<br>";
+  rankingsDiv.innerHTML = "";
+  navigationButtons.style.display = "none"; // Hide navigation buttons during processing
+  competitionBoard.sort((a, b) => a.cj1 - b.cj1);
+  await processAttempts("cj");
+  displayRankings("total");
 }
 
 // Function to run the competition
@@ -600,25 +674,11 @@ async function runCompetition() {
 
   await processAttempts("snatch");
 
-  // Display snatch rankings
+  // Display snatch rankings and competition board
   displayRankings("snatch");
-
-  // Display competition board and show "Next" button
   displayCompetitionBoard("snatch");
 
-  // Wait for user to click "Next" before proceeding
-  await waitForNextButton();
-
-  // Proceed to clean and jerks
-  competitionBoard.sort((a, b) => a.cj1 - b.cj1);
-
-  outputDiv.innerHTML += "<br>Clean & Jerk Attempts:<br>";
-
-  await processAttempts("cj");
-
-  // Clear previous rankings (snatch rankings)
-  rankingsDiv.innerHTML = "";
-
-  // Display total rankings
-  displayRankings("total");
+  // Show navigation buttons
+  currentState = 0;
+  navigationButtons.style.display = "block";
 }
