@@ -41,6 +41,11 @@ body {
   font-weight: bold;
 }
 
+/* Highlight the player's row */
+.player-row {
+  font-weight: bold;
+}
+
 #rankings {
   margin-top: 20px;
 }
@@ -69,11 +74,11 @@ body {
   margin-top: 10px;
 }
 
-#next-button {
+#navigation-buttons {
   margin-top: 10px;
-  padding: 5px;
 }
 
-.player-row {
-  font-weight: bold;
+#navigation-buttons button {
+  margin-right: 5px;
+  padding: 5px;
 }
