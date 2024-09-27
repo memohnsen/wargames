@@ -26,7 +26,14 @@ let playerInputResolve;
 let playerAthlete;
 
 // Variable to keep track of the current state
-let currentState = 0; // 0: Snatch Results, 1: CJ Starting List, 2: CJ Attempts
+// States:
+// 0 - Snatch Starting List
+// 1 - Snatch Attempts
+// 2 - Snatch Results
+// 3 - CJ Starting List
+// 4 - CJ Attempts
+// 5 - Total Results
+let currentState = 0;
 
 // Event listener for the Set Name and Attempts button
 setPlayerNameButton.addEventListener("click", setPlayerName);
@@ -116,6 +123,9 @@ function resetCompetition() {
   weightInputSection.style.display = "none";
   navigationButtons.style.display = "none";
   currentState = 0;
+
+  // Disable the Previous button
+  previousButton.disabled = true;
 
   // Reset player athlete
   playerAthlete = null;
@@ -218,16 +228,22 @@ function displayCompetitionBoard(lift) {
 
   let table = document.createElement("table");
   let headerRow = document.createElement("tr");
-  let headers = ["Name", "Weight"];
+  let headers;
 
-  for (let i = 1; i <= 3; i++) {
-    headers.push(`${lift}${i}`);
-  }
-  headers.push(`${lift}_best`);
+  if (lift === "total") {
+    // For total results, use the requested columns
+    headers = ["Name", "Weight", "Snatch Best", "C&J Best", "Total"];
+  } else {
+    headers = ["Name", "Weight"];
+    for (let i = 1; i <= 3; i++) {
+      headers.push(`${lift}${i}`);
+    }
+    headers.push(`${lift}_best`);
 
-  // If lift is "cj", add "Total" column
-  if (lift === "cj") {
-    headers.push("Total");
+    // If lift is "cj", add "Total" column
+    if (lift === "cj") {
+      headers.push("Total");
+    }
   }
 
   headers.forEach(headerText => {
@@ -255,55 +271,83 @@ function displayCompetitionBoard(lift) {
     weightCell.textContent = athlete.weight;
     row.appendChild(weightCell);
 
-    // Attempt cells
-    for (let i = 1; i <= 3; i++) {
-      let attemptWeight = athlete[`${lift}${i}`];
-      let attemptResult = athlete[`${lift}${i}_result`];
-
-      // Weight cell
-      let weightCell = document.createElement("td");
-      weightCell.textContent = attemptWeight !== null ? attemptWeight : "";
-
-      // Apply classes
-      if (attemptResult === "Success") {
-        weightCell.classList.add("success");
-      } else if (attemptResult === "Fail") {
-        weightCell.classList.add("failure");
+    if (lift === "total") {
+      // Snatch Best
+      let snatchBestCell = document.createElement("td");
+      snatchBestCell.textContent = athlete.snatch_best !== null ? athlete.snatch_best : "DNF";
+      if (athlete.snatch_best === null) {
+        snatchBestCell.classList.add("dnf");
       }
+      row.appendChild(snatchBestCell);
 
-      row.appendChild(weightCell);
-    }
+      // C&J Best
+      let cjBestCell = document.createElement("td");
+      cjBestCell.textContent = athlete.cj_best !== null ? athlete.cj_best : "DNF";
+      if (athlete.cj_best === null) {
+        cjBestCell.classList.add("dnf");
+      }
+      row.appendChild(cjBestCell);
 
-    // Best lift cell
-    let bestCell = document.createElement("td");
-    let allAttemptsMade = athlete[`${lift}1`] !== null && athlete[`${lift}2`] !== null && athlete[`${lift}3`] !== null;
-    if (allAttemptsMade && athlete[`${lift}_best`] === null && hasMissedAllAttempts(athlete, lift)) {
-      bestCell.textContent = "DNF";
-      bestCell.classList.add("dnf");
-    } else {
-      bestCell.textContent = athlete[`${lift}_best`] !== null ? athlete[`${lift}_best`] : "";
-    }
-    row.appendChild(bestCell);
-
-    // If lift is "cj", add "Total" cell
-    if (lift === "cj") {
+      // Total
       let totalCell = document.createElement("td");
-      let snatchBest = athlete["snatch_best"];
-      let cjBest = athlete["cj_best"];
-      let allSnatchAttemptsMade = hasMissedAllAttempts(athlete, "snatch") || athlete["snatch_best"] !== null;
-      let allCjAttemptsMade = hasMissedAllAttempts(athlete, "cj") || athlete["cj_best"] !== null;
-
-      if (allSnatchAttemptsMade && allCjAttemptsMade) {
-        if (snatchBest === null || cjBest === null) {
-          totalCell.textContent = "DNF";
-          totalCell.classList.add("dnf");
-        } else {
-          totalCell.textContent = snatchBest + cjBest;
-        }
+      if (athlete.total === "DNF" || athlete.total === null) {
+        totalCell.textContent = "DNF";
+        totalCell.classList.add("dnf");
       } else {
-        totalCell.textContent = "";
+        totalCell.textContent = athlete.total;
       }
       row.appendChild(totalCell);
+    } else {
+      // Attempt cells
+      for (let i = 1; i <= 3; i++) {
+        let attemptWeight = athlete[`${lift}${i}`];
+        let attemptResult = athlete[`${lift}${i}_result`];
+
+        // Weight cell
+        let weightCell = document.createElement("td");
+        weightCell.textContent = attemptWeight !== null ? attemptWeight : "";
+
+        // Apply classes
+        if (attemptResult === "Success") {
+          weightCell.classList.add("success");
+        } else if (attemptResult === "Fail") {
+          weightCell.classList.add("failure");
+        }
+
+        row.appendChild(weightCell);
+      }
+
+      // Best lift cell
+      let bestCell = document.createElement("td");
+      let allAttemptsMade = athlete[`${lift}1`] !== null && athlete[`${lift}2`] !== null && athlete[`${lift}3`] !== null;
+      if (allAttemptsMade && athlete[`${lift}_best`] === null && hasMissedAllAttempts(athlete, lift)) {
+        bestCell.textContent = "DNF";
+        bestCell.classList.add("dnf");
+      } else {
+        bestCell.textContent = athlete[`${lift}_best`] !== null ? athlete[`${lift}_best`] : "";
+      }
+      row.appendChild(bestCell);
+
+      // If lift is "cj", add "Total" cell
+      if (lift === "cj") {
+        let totalCell = document.createElement("td");
+        let snatchBest = athlete["snatch_best"];
+        let cjBest = athlete["cj_best"];
+        let allSnatchAttemptsMade = hasMissedAllAttempts(athlete, "snatch") || athlete["snatch_best"] !== null;
+        let allCjAttemptsMade = hasMissedAllAttempts(athlete, "cj") || athlete["cj_best"] !== null;
+
+        if (allSnatchAttemptsMade && allCjAttemptsMade) {
+          if (snatchBest === null || cjBest === null) {
+            totalCell.textContent = "DNF";
+            totalCell.classList.add("dnf");
+          } else {
+            totalCell.textContent = snatchBest + cjBest;
+          }
+        } else {
+          totalCell.textContent = "";
+        }
+        row.appendChild(totalCell);
+      }
     }
 
     table.appendChild(row);
@@ -314,6 +358,7 @@ function displayCompetitionBoard(lift) {
 
 // Function to process attempts for a lift
 async function processAttempts(lift) {
+  // ... (existing code remains the same)
   competitionBoard.forEach((athlete, index) => {
     athlete.attempts = [{
       name: athlete.name,
@@ -412,9 +457,9 @@ async function processAttempts(lift) {
           let next_weight;
 
           if (athlete[`${lift}${attempt_num}_result`] === "Success") {
-            // After a successful lift, minimum next weight is +1 kg
-            let minNextWeight = weight + 1;
-            let maxNextWeight = weight + 5; // Assuming a max increase of 5 kg
+            // After a successful lift, minimum next weight is +3 kg
+            let minNextWeight = weight + 3;
+            let maxNextWeight = weight + 5; // Max increase of 5 kg
             next_weight = minNextWeight + Math.floor(Math.random() * (maxNextWeight - minNextWeight + 1));
           } else {
             // After a missed lift, same weight with a 10% chance of increasing by 1 kg
@@ -462,223 +507,159 @@ async function processAttempts(lift) {
 
 // Function to display rankings
 function displayRankings(lift) {
-  // Create a container for the rankings
-  let rankingsContainer = document.createElement("div");
-
-  if (lift === "snatch") {
-    let ranking = competitionBoard.slice();
-
-    ranking.sort((a, b) => {
-      // Handle DNF cases
-      if (hasMissedAllAttempts(a, "snatch")) return 1;
-      if (hasMissedAllAttempts(b, "snatch")) return -1;
-
-      // Both have snatch_best
-      return b.snatch_best - a.snatch_best || a.weight - b.weight;
-    });
-
-    let table = document.createElement("table");
-    let headerRow = document.createElement("tr");
-    ["Rank", "Name", "Best Snatch"].forEach(text => {
-      let th = document.createElement("th");
-      th.textContent = text;
-      headerRow.appendChild(th);
-    });
-    table.appendChild(headerRow);
-
-    ranking.forEach((athlete, index) => {
-      let row = document.createElement("tr");
-
-      // Highlight the player's row
-      if (athlete.name === playerAthlete.name) {
-        row.classList.add("player-row");
-      }
-
-      let rankCell = document.createElement("td");
-      rankCell.textContent = hasMissedAllAttempts(athlete, "snatch") ? "" : index + 1;
-      row.appendChild(rankCell);
-
-      let nameCell = document.createElement("td");
-      nameCell.textContent = athlete.name;
-      row.appendChild(nameCell);
-
-      let bestCell = document.createElement("td");
-      if (hasMissedAllAttempts(athlete, "snatch")) {
-        bestCell.textContent = "DNF";
-        bestCell.classList.add("dnf");
-      } else {
-        bestCell.textContent = athlete.snatch_best !== null ? athlete.snatch_best : "";
-      }
-      row.appendChild(bestCell);
-
-      table.appendChild(row);
-    });
-
-    rankingsContainer.innerHTML = "<h2>Snatch Rankings:</h2>";
-    rankingsContainer.appendChild(table);
-
-  } else if (lift === "total") {
-    competitionBoard.forEach(athlete => {
-      if (
-        (hasMissedAllAttempts(athlete, "snatch") || athlete.snatch_best === null) ||
-        (hasMissedAllAttempts(athlete, "cj") || athlete.cj_best === null)
-      ) {
-        athlete.total = "DNF";
-      } else {
-        athlete.total = athlete.snatch_best + athlete.cj_best;
-      }
-    });
-
-    let ranking = competitionBoard.slice();
-
-    ranking.sort((a, b) => {
-      // Handle DNF cases
-      if (a.total === "DNF" && b.total === "DNF") return 0;
-      if (a.total === "DNF") return 1;
-      if (b.total === "DNF") return -1;
-
-      // Both totals are numbers
-      return b.total - a.total || a.weight - b.weight;
-    });
-
-    let table = document.createElement("table");
-    let headerRow = document.createElement("tr");
-    ["Rank", "Name", "Best Snatch", "Best C&J", "Total"].forEach(text => {
-      let th = document.createElement("th");
-      th.textContent = text;
-      headerRow.appendChild(th);
-    });
-    table.appendChild(headerRow);
-
-    ranking.forEach((athlete, index) => {
-      let row = document.createElement("tr");
-
-      // Highlight the player's row
-      if (athlete.name === playerAthlete.name) {
-        row.classList.add("player-row");
-      }
-
-      let rankCell = document.createElement("td");
-      rankCell.textContent = athlete.total === "DNF" ? "" : index + 1;
-      row.appendChild(rankCell);
-
-      let nameCell = document.createElement("td");
-      nameCell.textContent = athlete.name;
-      row.appendChild(nameCell);
-
-      let snatchCell = document.createElement("td");
-      if (hasMissedAllAttempts(athlete, "snatch")) {
-        snatchCell.textContent = "DNF";
-        snatchCell.classList.add("dnf");
-      } else {
-        snatchCell.textContent = athlete.snatch_best !== null ? athlete.snatch_best : "";
-      }
-      row.appendChild(snatchCell);
-
-      let cjCell = document.createElement("td");
-      if (hasMissedAllAttempts(athlete, "cj")) {
-        cjCell.textContent = "DNF";
-        cjCell.classList.add("dnf");
-      } else {
-        cjCell.textContent = athlete.cj_best !== null ? athlete.cj_best : "";
-      }
-      row.appendChild(cjCell);
-
-      let totalCell = document.createElement("td");
-      if (athlete.total === "DNF") {
-        totalCell.textContent = "DNF";
-        totalCell.classList.add("dnf");
-      } else {
-        totalCell.textContent = athlete.total;
-      }
-      row.appendChild(totalCell);
-
-      table.appendChild(row);
-    });
-
-    rankingsContainer.innerHTML = "<h2>Total Rankings:</h2>";
-    rankingsContainer.appendChild(table);
-  }
-
-  // Append rankings to the rankingsDiv
-  rankingsDiv.innerHTML = ""; // Clear previous rankings
-  rankingsDiv.appendChild(rankingsContainer);
+  // ... (existing code remains the same)
 }
 
 // Function to handle the "Next" button click
 function handleNext() {
   if (currentState === 0) {
-    // From Snatch Results to CJ Starting List
+    // From Snatch Starting List to Snatch Attempts
     currentState = 1;
-    showCJStartingList();
+    runSnatchAttempts();
   } else if (currentState === 1) {
-    // From CJ Starting List to CJ Attempts
+    // From Snatch Attempts to Snatch Results
     currentState = 2;
-    runCJAttempts();
+    showSnatchResults();
   } else if (currentState === 2) {
-    // No further action
+    // From Snatch Results to CJ Starting List
+    currentState = 3;
+    showCJStartingList();
+  } else if (currentState === 3) {
+    // From CJ Starting List to CJ Attempts
+    currentState = 4;
+    runCJAttempts();
+  } else if (currentState === 4) {
+    // From CJ Attempts to Total Results
+    currentState = 5;
+    showTotalResults();
+  } else if (currentState === 5) {
+    // Competition over
     navigationButtons.style.display = "none";
   }
 }
 
 // Function to handle the "Previous" button click
 function handlePrevious() {
-  if (currentState === 1) {
+  if (currentState === 3) {
     // From CJ Starting List back to Snatch Results
-    currentState = 0;
+    currentState = 2;
     showSnatchResults();
   } else if (currentState === 2) {
-    // From CJ Attempts back to CJ Starting List
-    currentState = 1;
-    showCJStartingList();
+    // Do not allow going back further
+    return;
+  } else {
+    // Do not allow previous in other states
+    return;
   }
+}
+
+// Function to show Snatch Starting List
+function showSnatchStartingList() {
+  outputDiv.innerHTML = "Snatch Starting List:<br>";
+  displayCompetitionBoard("snatch");
+  rankingsDiv.innerHTML = "";
+  navigationButtons.style.display = "block";
+  previousButton.disabled = true; // Disable Previous button at the starting list
+}
+
+// Function to run Snatch Attempts
+async function runSnatchAttempts() {
+  outputDiv.innerHTML = "Snatch Attempts:<br>";
+  rankingsDiv.innerHTML = "";
+  navigationButtons.style.display = "none"; // Hide navigation buttons during processing
+  competitionBoard.sort((a, b) => a.snatch1 - b.snatch1);
+  await processAttempts("snatch");
+  navigationButtons.style.display = "block"; // Show navigation buttons after processing
+  previousButton.disabled = true; // Disable Previous button
 }
 
 // Function to show Snatch Results
 function showSnatchResults() {
-  outputDiv.innerHTML = "Snatch Attempts:<br>";
+  outputDiv.innerHTML = "Snatch Results:<br>";
+
+  // Sort competitionBoard from heaviest to lightest snatch_best
+  competitionBoard.sort((a, b) => {
+    // Handle DNF cases
+    if (hasMissedAllAttempts(a, "snatch")) return 1;
+    if (hasMissedAllAttempts(b, "snatch")) return -1;
+    if (a.snatch_best === null) return 1;
+    if (b.snatch_best === null) return -1;
+
+    // Both have snatch_best
+    return b.snatch_best - a.snatch_best || a.weight - b.weight;
+  });
+
   displayCompetitionBoard("snatch");
   displayRankings("snatch");
   navigationButtons.style.display = "block";
+  previousButton.disabled = true; // Disable Previous button
 }
 
 // Function to show Clean & Jerk Starting List
 function showCJStartingList() {
-  outputDiv.innerHTML = "<br>Clean & Jerk Starting List:<br>";
+  outputDiv.innerHTML = "Clean & Jerk Starting List:<br>";
   displayCompetitionBoard("cj");
   rankingsDiv.innerHTML = "";
   navigationButtons.style.display = "block";
+  previousButton.disabled = false; // Enable Previous button
 }
 
 // Function to run Clean & Jerk Attempts
 async function runCJAttempts() {
-  outputDiv.innerHTML = "<br>Clean & Jerk Attempts:<br>";
+  outputDiv.innerHTML = "Clean & Jerk Attempts:<br>";
   rankingsDiv.innerHTML = "";
   navigationButtons.style.display = "none"; // Hide navigation buttons during processing
   competitionBoard.sort((a, b) => a.cj1 - b.cj1);
   await processAttempts("cj");
+  navigationButtons.style.display = "block"; // Show navigation buttons after processing
+  previousButton.disabled = true; // Disable Previous button
+}
+
+// Function to show Total Results
+function showTotalResults() {
+  outputDiv.innerHTML = "Competition Results:<br>";
+
+  // Calculate totals and handle DNF cases
+  competitionBoard.forEach(athlete => {
+    if (
+      (hasMissedAllAttempts(athlete, "snatch") || athlete.snatch_best === null) ||
+      (hasMissedAllAttempts(athlete, "cj") || athlete.cj_best === null)
+    ) {
+      athlete.total = "DNF";
+    } else {
+      athlete.total = athlete.snatch_best + athlete.cj_best;
+    }
+  });
+
+  // Sort competitionBoard descending by total
+  competitionBoard.sort((a, b) => {
+    // Handle DNF cases
+    if (a.total === "DNF" && b.total === "DNF") return 0;
+    if (a.total === "DNF") return 1;
+    if (b.total === "DNF") return -1;
+
+    // Both totals are numbers
+    return b.total - a.total || a.weight - b.weight;
+  });
+
+  // Display the competition board with the requested columns
+  displayCompetitionBoard("total");
+
+  // Optionally, display rankings
   displayRankings("total");
+
+  navigationButtons.style.display = "none"; // Hide navigation buttons after competition ends
 }
 
 // Function to run the competition
-async function runCompetition() {
+function runCompetition() {
   outputDiv.innerHTML = "";
   rankingsDiv.innerHTML = ""; // Clear rankings
   document.getElementById("competition-board").innerHTML = ""; // Clear competition board
 
   initializeCompetition();
 
-  competitionBoard.sort((a, b) => a.snatch1 - b.snatch1);
-
-  outputDiv.innerHTML += "Snatch Attempts:<br>";
-
-  await processAttempts("snatch");
-
-  // Display snatch rankings and competition board
-  displayRankings("snatch");
-  displayCompetitionBoard("snatch");
-
-  // Show navigation buttons
+  // Show Snatch Starting List
   currentState = 0;
-  navigationButtons.style.display = "block";
+  showSnatchStartingList();
 }
