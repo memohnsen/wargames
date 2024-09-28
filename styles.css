@@ -1,14 +1,29 @@
+/* Global Styles */
 body {
   font-family: Arial, sans-serif;
   margin: 20px;
+  background-color: #010101; /* Black background */
+  color: #FFFFFF; /* White text */
 }
 
+h1, h2, h3, h4, h5, h6 {
+  color: #FFFFFF;
+}
+
+a {
+  color: #897D27; /* Gold color for links */
+}
+
+/* Output Section */
 #output {
   margin-top: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid #999999; /* Silver border */
   padding: 10px;
+  background-color: #010101; /* Black background */
+  color: #FFFFFF;
 }
 
+/* Competition Board */
 #competition-board {
   margin-top: 20px;
 }
@@ -19,80 +34,130 @@ body {
 }
 
 #competition-board th, #competition-board td {
-  border: 1px solid #ccc;
+  border: 1px solid #999999; /* Silver border */
   padding: 5px;
   text-align: center;
-  background-color: #ffffff;
-  color: #000000;
 }
 
+#competition-board th {
+  background-color: #897D27; /* Gold background */
+  color: #FFFFFF;
+}
+
+#competition-board td {
+  background-color: #010101; /* Black background */
+  color: #FFFFFF;
+}
+
+/* Attempt Result Classes */
 .success {
-  background-color: #d4edda !important; /* Light green background */
-  color: #155724 !important;           /* Dark green text */
+  background-color: #006400 !important; /* Dark green background */
+  color: #FFFFFF !important;            /* White text */
 }
 
 .failure {
-  background-color: #f8d7da !important; /* Light red background */
-  color: #721c24 !important;            /* Dark red text */
+  background-color: #8B0000 !important; /* Dark red background */
+  color: #FFFFFF !important;            /* White text */
 }
 
 .dnf {
-  color: red;
+  color: #FF0000; /* Bright red text */
   font-weight: bold;
 }
 
 /* Highlight the player's row */
 .player-row {
-  background-color: #fff3cd !important; /* Light yellow background */
+  background-color: #333333 !important; /* Dark grey background */
   font-weight: bold;
 }
 
+/* Rankings Section */
 #rankings {
   margin-top: 20px;
+  color: #FFFFFF;
 }
 
 #rankings h2 {
   margin-top: 20px;
+  color: #FFFFFF;
 }
 
-/* Style for the weight input section */
+/* Weight Input Section */
 #weight-input-section {
   margin-top: 20px;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #999999; /* Silver border */
+  background-color: #010101; /* Black background */
+  color: #FFFFFF;
 }
 
 #weight-input-section h2 {
   margin-top: 0;
+  color: #FFFFFF;
 }
 
 #weight-input-section input {
   width: 150px;
   margin-right: 10px;
+  padding: 5px;
+  background-color: #333333; /* Dark grey background */
+  color: #FFFFFF;
+  border: 1px solid #999999; /* Silver border */
 }
 
-#start-competition {
-  margin-top: 10px;
+/* Buttons */
+button {
+  padding: 5px 10px;
+  margin-right: 5px;
+  background-color: #897D27; /* Gold background */
+  color: #FFFFFF;
+  border: none;
+  cursor: pointer;
 }
 
+button:hover:not(:disabled) {
+  background-color: #AFA060; /* Lighter gold on hover */
+}
+
+button:disabled {
+  background-color: #555555; /* Grey background */
+  color: #999999;            /* Silver text */
+  cursor: not-allowed;
+}
+
+/* Navigation Buttons */
 #navigation-buttons {
   margin-top: 10px;
 }
 
 #navigation-buttons button {
   margin-right: 5px;
-  padding: 5px;
 }
 
-/* Styles for medal positions */
+/* Medal Positions */
 .first-place td {
-  background-color: gold !important;
+  background-color: #cdb81a !important; /* Gold background */
+  color: #FFFFFF !important;
 }
 
 .second-place td {
-  background-color: silver !important;
+  background-color: #999999 !important; /* Silver background */
+  color: #FFFFFF !important;
 }
 
 .third-place td {
-  background-color: #cd7f32 !important; /* Bronze color */
+  background-color: #cc741c !important; /* Bronze background */
+  color: #FFFFFF !important;
+}
+
+/* Input Fields */
+input[type="text"], input[type="number"] {
+  padding: 5px;
+  background-color: #333333; /* Dark grey background */
+  color: #FFFFFF;
+  border: 1px solid #999999; /* Silver border */
+}
+
+input[type="text"]::placeholder, input[type="number"]::placeholder {
+  color: #CCCCCC;
 }
