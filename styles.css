@@ -83,3 +83,16 @@ body {
   margin-right: 5px;
   padding: 5px;
 }
+
+/* Styles for medal positions */
+.first-place td {
+  background-color: gold !important;
+}
+
+.second-place td {
+  background-color: silver !important;
+}
+
+.third-place td {
+  background-color: #cd7f32 !important; /* Bronze color */
+}
