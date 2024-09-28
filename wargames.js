@@ -388,10 +388,12 @@ async function processAttempts(lift) {
 
   let attempts = competitionBoard.flatMap(athlete => athlete.attempts);
 
-  // Sort attempts by initial_weight ascending, then by lotNumber ascending
+  // Sort attempts by initial_weight ascending, then by attempt_num ascending, then by lotNumber ascending
   attempts.sort((a, b) => {
     if (a.initial_weight !== b.initial_weight) {
       return a.initial_weight - b.initial_weight;
+    } else if (a.attempt_num !== b.attempt_num) {
+      return a.attempt_num - b.attempt_num;
     } else {
       return a.lotNumber - b.lotNumber;
     }
@@ -500,7 +502,7 @@ async function processAttempts(lift) {
             attempt_num: next_attempt_num,
             weight: next_weight,
             initial_weight: next_weight,
-           lotNumber: athlete.lotNumber, // Include lotNumber
+            lotNumber: athlete.lotNumber, // Include lotNumber
             order: attempt.order
           });
         }
@@ -517,6 +519,8 @@ async function processAttempts(lift) {
         attempts.sort((a, b) => {
           if (a.initial_weight !== b.initial_weight) {
             return a.initial_weight - b.initial_weight;
+          } else if (a.attempt_num !== b.attempt_num) {
+            return a.attempt_num - b.attempt_num;
           } else {
             return a.lotNumber - b.lotNumber;
           }
@@ -602,13 +606,18 @@ async function runSnatchAttempts() {
   outputDiv.innerHTML = "Snatch Attempts:<br>";
   rankingsDiv.innerHTML = "";
   navigationButtons.style.display = "none"; // Hide navigation buttons during processing
+
+  // Sort the competition board for initial attempt order
   competitionBoard.sort((a, b) => {
     if (a.snatch1 !== b.snatch1) {
       return a.snatch1 - b.snatch1;
+    } else if (a.attempt_num !== b.attempt_num) {
+      return a.attempt_num - b.attempt_num;
     } else {
       return a.lotNumber - b.lotNumber;
     }
   });
+
   await processAttempts("snatch");
   navigationButtons.style.display = "block"; // Show navigation buttons after processing
   previousButton.disabled = true; // Disable Previous button
@@ -654,13 +663,18 @@ async function runCJAttempts() {
   outputDiv.innerHTML = "Clean & Jerk Attempts:<br>";
   rankingsDiv.innerHTML = "";
   navigationButtons.style.display = "none"; // Hide navigation buttons during processing
+
+  // Sort the competition board for initial attempt order
   competitionBoard.sort((a, b) => {
     if (a.cj1 !== b.cj1) {
       return a.cj1 - b.cj1;
+    } else if (a.attempt_num !== b.attempt_num) {
+      return a.attempt_num - b.attempt_num;
     } else {
       return a.lotNumber - b.lotNumber;
     }
   });
+
   await processAttempts("cj");
   navigationButtons.style.display = "block"; // Show navigation buttons after processing
   previousButton.disabled = true; // Disable Previous button
