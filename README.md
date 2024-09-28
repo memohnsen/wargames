@@ -2,7 +2,7 @@
 
 War Games is an Olympic Weightlifting competition simulator developed from the Staff Calls of Power & Grace Performance by Maddisen Mohnsen
 
-War Games was developed to give both beginner and advanced coaches the ability to practice counting attempts without the stress of a true competition environment. 
+War Games was developed to give both beginner and advanced coaches the ability to practice counting attempts without the stress of a true competition environment. This program is built specifically to be run on your desktop. It will work on mobile devices but is not optimized for that.
 
 - Key Features 
 	- The program includes 11 athletes competing in the 96kg weight class who are hitting numbers similar to an American Open Series B-D session. 
