@@ -93,7 +93,7 @@ function setPlayerName() {
   }
 
   // Create the player's athlete object with the specified first attempts
-  playerAthlete = { name: name, weight: 96.0, snatch: snatchAttempt, cj: cjAttempt };
+  playerAthlete = { name: name, weight: 96.0, snatch: snatchAttempt, cj: cjAttempt, lotNumber: 488 };
 
   // Enable the Start Competition button
   startCompetitionButton.disabled = false;
@@ -176,18 +176,18 @@ function simulateAttempt(lift, attempt_num) {
 // Initialize competition board
 let competitionBoard;
 function initializeCompetition() {
-  // List of athletes (excluding the player's athlete for now)
+  // List of athletes with lot numbers set in the code
   let athletes = [
-    { name: "Spencer", weight: 96.0, snatch: 120, cj: 150 },
-    { name: "Adam", weight: 96.0, snatch: 115, cj: 145 },
-    { name: "Angela", weight: 96.0, snatch: 118, cj: 148 },
-    { name: "David", weight: 96.0, snatch: 122, cj: 152 },
-    { name: "Nate", weight: 96.0, snatch: 110, cj: 140 },
-    { name: "Jessie", weight: 96.0, snatch: 110, cj: 141 },
-    { name: "Grace", weight: 96.0, snatch: 113, cj: 149 },
-    { name: "Jordan", weight: 96.0, snatch: 119, cj: 138 },
-    { name: "Morghan", weight: 96.0, snatch: 122, cj: 153 },
-    { name: "Maddisen", weight: 96.0, snatch: 114, cj: 144 }
+    { name: "Spencer", weight: 96.0, snatch: 120, cj: 150, lotNumber: 958 },
+    { name: "Adam", weight: 96.0, snatch: 115, cj: 145, lotNumber: 678 },
+    { name: "Angela", weight: 96.0, snatch: 118, cj: 148, lotNumber: 805 },
+    { name: "David", weight: 96.0, snatch: 122, cj: 152, lotNumber: 19 },
+    { name: "Nate", weight: 96.0, snatch: 110, cj: 140, lotNumber: 309 },
+    { name: "Jessie", weight: 96.0, snatch: 110, cj: 141, lotNumber: 106 },
+    { name: "Grace", weight: 96.0, snatch: 113, cj: 149, lotNumber: 544 },
+    { name: "Jordan", weight: 96.0, snatch: 119, cj: 138, lotNumber: 99 },
+    { name: "Morghan", weight: 96.0, snatch: 122, cj: 153, lotNumber: 659 },
+    { name: "Maddisen", weight: 96.0, snatch: 114, cj: 144, lotNumber: 241 }
   ];
 
   // Add the player's athlete to the list
@@ -232,9 +232,9 @@ function displayCompetitionBoard(lift) {
 
   if (lift === "total") {
     // For total results, use the requested columns
-    headers = ["Name", "Weight", "Snatch Best", "C&J Best", "Total"];
+    headers = ["Lot Number", "Name", "Weight", "Snatch Best", "C&J Best", "Total"];
   } else {
-    headers = ["Name", "Weight"];
+    headers = ["Lot Number", "Name", "Weight"];
     for (let i = 1; i <= 3; i++) {
       headers.push(`${lift}${i}`);
     }
@@ -253,13 +253,18 @@ function displayCompetitionBoard(lift) {
   });
   table.appendChild(headerRow);
 
-  competitionBoard.forEach(athlete => {
+  competitionBoard.forEach((athlete, index) => {
     let row = document.createElement("tr");
 
     // Highlight the player's row
     if (athlete.name === playerAthlete.name) {
       row.classList.add("player-row");
     }
+
+    // Lot Number cell
+    let lotCell = document.createElement("td");
+    lotCell.textContent = athlete.lotNumber;
+    row.appendChild(lotCell);
 
     // Name cell
     let nameCell = document.createElement("td");
@@ -350,6 +355,17 @@ function displayCompetitionBoard(lift) {
       }
     }
 
+    // Apply medal classes for top 3 in states 2 and 5
+    if ((currentState === 2 || currentState === 5) && index < 3) {
+      if (index === 0) {
+        row.classList.add("first-place");
+      } else if (index === 1) {
+        row.classList.add("second-place");
+      } else if (index === 2) {
+        row.classList.add("third-place");
+      }
+    }
+
     table.appendChild(row);
   });
 
@@ -358,7 +374,6 @@ function displayCompetitionBoard(lift) {
 
 // Function to process attempts for a lift
 async function processAttempts(lift) {
-  // ... (existing code remains the same)
   competitionBoard.forEach((athlete, index) => {
     athlete.attempts = [{
       name: athlete.name,
