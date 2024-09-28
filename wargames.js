@@ -380,13 +380,22 @@ async function processAttempts(lift) {
       attempt_num: 1,
       weight: athlete[`${lift}1`],
       initial_weight: athlete[`${lift}1`],
+      lotNumber: athlete.lotNumber, // Include lotNumber
       order: index
     }];
     athlete.currentAttemptIndex = 0;
   });
 
   let attempts = competitionBoard.flatMap(athlete => athlete.attempts);
-  attempts.sort((a, b) => a.initial_weight - b.initial_weight || a.order - b.order);
+
+  // Sort attempts by initial_weight ascending, then by lotNumber ascending
+  attempts.sort((a, b) => {
+    if (a.initial_weight !== b.initial_weight) {
+      return a.initial_weight - b.initial_weight;
+    } else {
+      return a.lotNumber - b.lotNumber;
+    }
+  });
 
   let attemptResults = [];
   let currentWeight = Math.min(...attempts.map(attempt => attempt.initial_weight));
@@ -491,6 +500,7 @@ async function processAttempts(lift) {
             attempt_num: next_attempt_num,
             weight: next_weight,
             initial_weight: next_weight,
+           lotNumber: athlete.lotNumber, // Include lotNumber
             order: attempt.order
           });
         }
@@ -503,7 +513,15 @@ async function processAttempts(lift) {
           attempts.push(athlete.attempts[athlete.currentAttemptIndex]);
         }
 
-        attempts.sort((a, b) => a.initial_weight - b.initial_weight || a.order - b.order);
+        // Sort attempts after each update
+        attempts.sort((a, b) => {
+          if (a.initial_weight !== b.initial_weight) {
+            return a.initial_weight - b.initial_weight;
+          } else {
+            return a.lotNumber - b.lotNumber;
+          }
+        });
+
         displayCompetitionBoard(lift);
 
         attemptMade = true;
@@ -519,6 +537,8 @@ async function processAttempts(lift) {
     outputDiv.innerHTML = attemptResults.join('<br>');
   }
 }
+
+// Rest of the code remains the same...
 
 // Function to display rankings
 function displayRankings(lift) {
@@ -582,7 +602,13 @@ async function runSnatchAttempts() {
   outputDiv.innerHTML = "Snatch Attempts:<br>";
   rankingsDiv.innerHTML = "";
   navigationButtons.style.display = "none"; // Hide navigation buttons during processing
-  competitionBoard.sort((a, b) => a.snatch1 - b.snatch1);
+  competitionBoard.sort((a, b) => {
+    if (a.snatch1 !== b.snatch1) {
+      return a.snatch1 - b.snatch1;
+    } else {
+      return a.lotNumber - b.lotNumber;
+    }
+  });
   await processAttempts("snatch");
   navigationButtons.style.display = "block"; // Show navigation buttons after processing
   previousButton.disabled = true; // Disable Previous button
@@ -601,7 +627,11 @@ function showSnatchResults() {
     if (b.snatch_best === null) return -1;
 
     // Both have snatch_best
-    return b.snatch_best - a.snatch_best || a.weight - b.weight;
+    if (b.snatch_best !== a.snatch_best) {
+      return b.snatch_best - a.snatch_best;
+    } else {
+      return a.lotNumber - b.lotNumber; // Lower lot number wins tie
+    }
   });
 
   displayCompetitionBoard("snatch");
@@ -624,7 +654,13 @@ async function runCJAttempts() {
   outputDiv.innerHTML = "Clean & Jerk Attempts:<br>";
   rankingsDiv.innerHTML = "";
   navigationButtons.style.display = "none"; // Hide navigation buttons during processing
-  competitionBoard.sort((a, b) => a.cj1 - b.cj1);
+  competitionBoard.sort((a, b) => {
+    if (a.cj1 !== b.cj1) {
+      return a.cj1 - b.cj1;
+    } else {
+      return a.lotNumber - b.lotNumber;
+    }
+  });
   await processAttempts("cj");
   navigationButtons.style.display = "block"; // Show navigation buttons after processing
   previousButton.disabled = true; // Disable Previous button
@@ -654,7 +690,11 @@ function showTotalResults() {
     if (b.total === "DNF") return -1;
 
     // Both totals are numbers
-    return b.total - a.total || a.weight - b.weight;
+    if (b.total !== a.total) {
+      return b.total - a.total;
+    } else {
+      return a.lotNumber - b.lotNumber; // Lower lot number wins tie
+    }
   });
 
   // Display the competition board with the requested columns
