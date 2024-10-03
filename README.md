@@ -15,4 +15,4 @@ War Games was developed to give both beginner and advanced coaches the ability t
 
 If you have any questions or feedback please shoot me an email and let me know! maddisen@powerandgraceperformance.com
 
-Maddisen Mohnsen CSCS, USAW National Coach
+Maddisen Mohnsen, CSCS, USAW National Coach
