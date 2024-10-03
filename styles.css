@@ -161,3 +161,40 @@ input[type="text"], input[type="number"] {
 input[type="text"]::placeholder, input[type="number"]::placeholder {
   color: #CCCCCC;
 }
+
+/* Modal Styles */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0, 0, 0, 0.7); /* Black background with opacity */
+}
+
+.modal-content {
+  background-color: #010101; /* Same as the site's background */
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #999999; /* Silver border */
+  width: 80%; /* Could be more or less, depending on screen size */
+  color: #FFFFFF; /* White text */
+}
+
+.close-button {
+  color: #FFFFFF;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: #999999;
+  text-decoration: none;
+  cursor: pointer;
+}
