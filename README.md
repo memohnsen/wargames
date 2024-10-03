@@ -11,7 +11,7 @@ War Games was developed to give both beginner and advanced coaches the ability t
 	- Upon a missed lift, there is a 10% chance that an athlete will go up by 1kg.
 	- Users will be able to see all attempts since history since their last attempt. This allows the user to check the count they had and compare it to what happened. 
 	- Upon completion of the snatch and clean and jerk session, a leaderboard will appear to show placings.
-- Upon completion of the competition, you can click either the Start or Reset Competition buttons. Start Competition will keep the name and openers the same. Reset Competition will reset athlete name and openers.
+	- Upon completion of the competition, you can click either the Start or Reset Competition buttons. Start Competition will keep the name and openers the same. Reset Competition will reset athlete name and openers.
 
 If you have any questions or feedback please shoot me an email and let me know! maddisen@powerandgraceperformance.com
 
